@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +23,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import utn.isi.dan.lab01.domain.DetallePedido;
 import utn.isi.dan.lab01.domain.Pedido;
+import utn.isi.dan.lab01.service.PedidoService;
 
 @RestController
 @RequestMapping("/api/pedido")
 @Api(value = "PedidoRest")
 public class PedidoRest {
+	
+	
+	@Autowired
+	PedidoService pedidoService;
 	
 	
 	private static final List<Pedido> listaPedidos = new ArrayList<>();
@@ -35,12 +42,41 @@ public class PedidoRest {
 	@ApiOperation(value = "Crea un pedido")
 	public ResponseEntity<Pedido> crear(@RequestBody Pedido nuevoPedido){
 		
+		if(nuevoPedido.getObra()==null) {
+			return ResponseEntity.badRequest().body(nuevoPedido);
+		}
+		if(nuevoPedido.getDetalle()==null || nuevoPedido.getDetalle().isEmpty()) {
+			return ResponseEntity.badRequest().body(nuevoPedido);
+		}else {
+			boolean detallesValidos = nuevoPedido.getDetalle()
+					.stream()
+					.allMatch(dp -> validarDetallePedido(dp));
+			if(!detallesValidos) {
+				return ResponseEntity.badRequest().body(nuevoPedido);
+			}
+		}
 		
-		nuevoPedido.setId(ID_GEN++);
-		listaPedidos.add(nuevoPedido);
 		
+		
+		this.pedidoService.crearPedido(nuevoPedido);		
 		return ResponseEntity.ok(nuevoPedido);
 	}
+	
+	boolean validarDetallePedido(DetallePedido dp) {		
+		if(dp.getProducto()==null) {
+			return false;
+		}
+		if(dp.getCantidad()==null) {
+			return false;
+		}	
+		
+		if(dp.getPrecio()==null) {
+			return false;
+		}	
+		return true;
+	}
+	
+	
 	
 	@PostMapping(path = "/{idPedido}/detalle")
 	@ApiOperation(value = "Agrega un pedido detalle a un pedido existente")
@@ -133,7 +169,9 @@ public class PedidoRest {
 	        }
 	        
 		}else {
-			 return ResponseEntity.ok(listaPedidos);
+			
+			return ResponseEntity.ok(this.pedidoService.consultarPedidos());
+			 //return ResponseEntity.ok(listaPedidos);
 		}   	
     }
     
