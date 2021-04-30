@@ -2,12 +2,13 @@ package utn.isi.dan.lab01.service.implement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import javax.management.RuntimeErrorException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import utn.isi.dan.lab01.domain.DetallePedido;
 import utn.isi.dan.lab01.domain.EstadoPedido;
 import utn.isi.dan.lab01.domain.Obra;
 import utn.isi.dan.lab01.domain.Pedido;
@@ -80,6 +81,50 @@ public class PedidoServiceImpl implements PedidoService{
 		  this.repo.findAll().forEach(p -> list.add(p));
 
 		return list;
+	}
+
+
+	@Override
+	public Optional<Pedido> buscarPedidoById(Integer id) {
+		
+		
+		return this.repo.findById(id);		
+		
+	}
+	
+	public boolean eliminarPedidobyId(Integer id){
+		
+		if(this.repo.existsById(id)) {
+			this.repo.deleteById(id);
+			return true;
+		}else {
+			return false;
+		}
+	}
+	
+	public boolean actualizarPedido(Pedido p) {
+		
+		if(this.repo.existsById(p.getId())) {
+			this.repo.deleteById(p.getId());
+			this.repo.save(p);
+			return true;
+		}else {
+			return false;
+		}
+	}
+	
+	public boolean agregarDetallePedido(Integer idPedido , DetallePedido detalle) {
+		
+		if(this.repo.existsById(idPedido)) {
+			Pedido p = this.repo.findById(idPedido).get();
+			p.getDetalle().add(detalle);
+			this.repo.save(p);
+			return true;
+		}else {
+			return false;
+		}
+		
+		
 	}
 
 

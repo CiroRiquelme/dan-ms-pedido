@@ -7,7 +7,6 @@ import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +35,6 @@ public class PedidoRest {
 	
 	
 	private static final List<Pedido> listaPedidos = new ArrayList<>();
-	private static Integer ID_GEN = 1;
 	
 	@PostMapping
 	@ApiOperation(value = "Crea un pedido")
@@ -85,19 +83,11 @@ public class PedidoRest {
 			@RequestBody DetallePedido detalle
 			){
 		
-        OptionalInt indexOpt =   IntStream.range(0, listaPedidos.size())
-        .filter(i -> listaPedidos.get(i).getId().equals(idPedido))
-        .findFirst();
-
-        if(indexOpt.isPresent()){
-        	listaPedidos.get(indexOpt.getAsInt()).getDetalle().add(detalle);
-        	
-            return ResponseEntity.ok().build();
-            
-            
+        if(this.pedidoService.agregarDetallePedido(idPedido,detalle)){     
+            return ResponseEntity.ok(detalle);
         } else {
             return ResponseEntity.notFound().build();
-        }
+        }	
 	}
 	
 	
@@ -108,28 +98,21 @@ public class PedidoRest {
 	@ApiOperation(value = " Actualiza los datos de un pedido existente")
 	public ResponseEntity<Pedido>actualizar(@RequestBody Pedido nuevo, @PathVariable Integer id){
 		
-		OptionalInt indexOpt = IntStream.range(0, listaPedidos.size())
-				.filter(i -> listaPedidos.get(i).getId().equals(id)         )
-				.findFirst();
-		
-		if(indexOpt.isPresent()) {
-			listaPedidos.set(indexOpt.getAsInt(),nuevo);
-			return ResponseEntity.ok(nuevo);
-		}else {
-			return ResponseEntity.notFound().build();
-		}		
+        if(this.pedidoService.actualizarPedido(nuevo)){     
+            return ResponseEntity.ok(nuevo);
+        } else {
+            return ResponseEntity.notFound().build();
+        }	
 	}
 	
 	
     @DeleteMapping(path = "/{id}")
     @ApiOperation(value = "Elimina un pedido existente.")
-    public ResponseEntity<Pedido> borrar(@PathVariable Integer id){
-        OptionalInt indexOpt =   IntStream.range(0, listaPedidos.size())
-        .filter(i -> listaPedidos.get(i).getId().equals(id))
-        .findFirst();
+    public ResponseEntity<Pedido> borrar(@PathVariable Integer id){  	
+    	
 
-        if(indexOpt.isPresent()){
-        	listaPedidos.remove(indexOpt.getAsInt());
+
+        if(this.pedidoService.eliminarPedidobyId(id)){     
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
@@ -139,12 +122,14 @@ public class PedidoRest {
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "Busca un Pedido por id.")
     public ResponseEntity<Pedido> pedidoPorId(@PathVariable Integer id){
+    	
 
-        Optional<Pedido> c =  listaPedidos
-                .stream()
-                .filter(unPed -> unPed.getId().equals(id))
-                .findFirst();
-        return ResponseEntity.of(c);
+
+//        Optional<Pedido> c =  listaPedidos
+//                .stream()
+//                .filter(unPed -> unPed.getId().equals(id))
+//                .findFirst();
+        return ResponseEntity.of(this.pedidoService.buscarPedidoById(id));
     }
     
     @GetMapping
@@ -155,6 +140,10 @@ public class PedidoRest {
     		){   	
     	
     	if(idObra != null && !idObra.equals(0)) {
+    		
+    		List<Pedido> listaPedidos = new ArrayList<>();
+    		listaPedidos = this.pedidoService.consultarPedidos();
+    		
 	        Optional<Pedido> c =  listaPedidos
 	                .stream()
 	                .filter(unPed -> unPed.getObra().getId().equals(idObra))
