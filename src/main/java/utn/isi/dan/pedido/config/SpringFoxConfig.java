@@ -1,4 +1,4 @@
-package utn.isi.dan.lab01.config;
+package utn.isi.dan.pedido.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package utn.isi.dan.lab01.service.implement;
+package utn.isi.dan.pedido.service.implement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,15 +8,15 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import utn.isi.dan.lab01.domain.DetallePedido;
-import utn.isi.dan.lab01.domain.EstadoPedido;
-import utn.isi.dan.lab01.domain.Obra;
-import utn.isi.dan.lab01.domain.Pedido;
-import utn.isi.dan.lab01.domain.Producto;
-import utn.isi.dan.lab01.repository.PedidoRepository;
-import utn.isi.dan.lab01.service.ClienteService;
-import utn.isi.dan.lab01.service.MaterialService;
-import utn.isi.dan.lab01.service.PedidoService;
+import utn.isi.dan.lpedido.service.ClienteService;
+import utn.isi.dan.lpedido.service.MaterialService;
+import utn.isi.dan.lpedido.service.PedidoService;
+import utn.isi.dan.pedido.domain.DetallePedido;
+import utn.isi.dan.pedido.domain.EstadoPedido;
+import utn.isi.dan.pedido.domain.Obra;
+import utn.isi.dan.pedido.domain.Pedido;
+import utn.isi.dan.pedido.domain.Producto;
+import utn.isi.dan.pedido.repository.PedidoRepository;
 
 
 @Service

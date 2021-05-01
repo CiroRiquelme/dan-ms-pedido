@@ -1,6 +1,6 @@
-package utn.isi.dan.lab01.service;
+package utn.isi.dan.lpedido.service;
 
-import utn.isi.dan.lab01.domain.Obra;
+import utn.isi.dan.pedido.domain.Obra;
 
 public interface ClienteService {
 

@@ -1,9 +1,9 @@
-package utn.isi.dan.lab01.repository;
+package utn.isi.dan.pedido.repository;
 
 import org.springframework.stereotype.Repository;
 
 import frsf.isi.dan.InMemoryRepository;
-import utn.isi.dan.lab01.domain.Pedido;
+import utn.isi.dan.pedido.domain.Pedido;
 
 
 @Repository

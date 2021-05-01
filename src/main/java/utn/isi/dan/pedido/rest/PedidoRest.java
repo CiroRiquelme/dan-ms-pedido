@@ -1,4 +1,4 @@
-package utn.isi.dan.lab01.rest;
+package utn.isi.dan.pedido.rest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import utn.isi.dan.lab01.domain.DetallePedido;
-import utn.isi.dan.lab01.domain.Pedido;
-import utn.isi.dan.lab01.service.PedidoService;
+import utn.isi.dan.lpedido.service.PedidoService;
+import utn.isi.dan.pedido.domain.DetallePedido;
+import utn.isi.dan.pedido.domain.Pedido;
 
 @RestController
 @RequestMapping("/api/pedido")

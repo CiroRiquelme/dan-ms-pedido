@@ -13,14 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import utn.isi.dan.lab01.domain.DetallePedido;
-import utn.isi.dan.lab01.domain.Obra;
-import utn.isi.dan.lab01.domain.Pedido;
-import utn.isi.dan.lab01.domain.Producto;
-import utn.isi.dan.lab01.repository.PedidoRepository;
-import utn.isi.dan.lab01.service.ClienteService;
-import utn.isi.dan.lab01.service.MaterialService;
-import utn.isi.dan.lab01.service.PedidoService;
+import utn.isi.dan.lpedido.service.ClienteService;
+import utn.isi.dan.lpedido.service.MaterialService;
+import utn.isi.dan.lpedido.service.PedidoService;
+import utn.isi.dan.pedido.domain.DetallePedido;
+import utn.isi.dan.pedido.domain.Obra;
+import utn.isi.dan.pedido.domain.Pedido;
+import utn.isi.dan.pedido.domain.Producto;
+import utn.isi.dan.pedido.repository.PedidoRepository;
 
 @SpringBootTest
 public class PedidoServiceImplUnitTest {

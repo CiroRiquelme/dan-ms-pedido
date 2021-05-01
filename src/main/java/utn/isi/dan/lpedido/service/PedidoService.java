@@ -1,10 +1,10 @@
-package utn.isi.dan.lab01.service;
+package utn.isi.dan.lpedido.service;
 
 import java.util.List;
 import java.util.Optional;
 
-import utn.isi.dan.lab01.domain.DetallePedido;
-import utn.isi.dan.lab01.domain.Pedido;
+import utn.isi.dan.pedido.domain.DetallePedido;
+import utn.isi.dan.pedido.domain.Pedido;
 
 public interface PedidoService {
 	

@@ -1,6 +1,6 @@
-package utn.isi.dan.lab01.service;
+package utn.isi.dan.lpedido.service;
 
-import utn.isi.dan.lab01.domain.Producto;
+import utn.isi.dan.pedido.domain.Producto;
 
 public interface MaterialService {	
 	

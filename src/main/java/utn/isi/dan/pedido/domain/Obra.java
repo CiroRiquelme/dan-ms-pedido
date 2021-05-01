@@ -1,4 +1,4 @@
-package utn.isi.dan.lab01.domain;
+package utn.isi.dan.pedido.domain;
 
 public class Obra {
 
