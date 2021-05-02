@@ -1,4 +1,4 @@
-package utn.isi.dan.lab01.pedidos.service.implement;
+package utn.isi.dan.pedido.service.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -8,10 +8,11 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.matchers.Any;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import utn.isi.dan.pedido.domain.DetallePedido;
 import utn.isi.dan.pedido.domain.Obra;
