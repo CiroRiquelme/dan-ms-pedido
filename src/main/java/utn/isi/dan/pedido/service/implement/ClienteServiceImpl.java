@@ -2,8 +2,8 @@ package utn.isi.dan.pedido.service.implement;
 
 import org.springframework.stereotype.Service;
 
-import utn.isi.dan.lpedido.service.ClienteService;
 import utn.isi.dan.pedido.domain.Obra;
+import utn.isi.dan.pedido.service.ClienteService;
 
 
 @Service

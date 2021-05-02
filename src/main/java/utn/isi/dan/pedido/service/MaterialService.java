@@ -1,4 +1,4 @@
-package utn.isi.dan.lpedido.service;
+package utn.isi.dan.pedido.service;
 
 import utn.isi.dan.pedido.domain.Producto;
 

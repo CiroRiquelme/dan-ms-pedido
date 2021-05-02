@@ -8,15 +8,15 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import utn.isi.dan.lpedido.service.ClienteService;
-import utn.isi.dan.lpedido.service.MaterialService;
-import utn.isi.dan.lpedido.service.PedidoService;
 import utn.isi.dan.pedido.domain.DetallePedido;
 import utn.isi.dan.pedido.domain.EstadoPedido;
 import utn.isi.dan.pedido.domain.Obra;
 import utn.isi.dan.pedido.domain.Pedido;
 import utn.isi.dan.pedido.domain.Producto;
 import utn.isi.dan.pedido.repository.PedidoRepository;
+import utn.isi.dan.pedido.service.ClienteService;
+import utn.isi.dan.pedido.service.MaterialService;
+import utn.isi.dan.pedido.service.PedidoService;
 
 
 @Service

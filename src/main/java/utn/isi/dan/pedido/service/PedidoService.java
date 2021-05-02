@@ -1,4 +1,4 @@
-package utn.isi.dan.lpedido.service;
+package utn.isi.dan.pedido.service;
 
 import java.util.List;
 import java.util.Optional;

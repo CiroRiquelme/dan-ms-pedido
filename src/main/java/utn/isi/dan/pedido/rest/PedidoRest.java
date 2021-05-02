@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import utn.isi.dan.lpedido.service.PedidoService;
 import utn.isi.dan.pedido.domain.DetallePedido;
 import utn.isi.dan.pedido.domain.Pedido;
+import utn.isi.dan.pedido.service.PedidoService;
 
 @RestController
 @RequestMapping("/api/pedido")

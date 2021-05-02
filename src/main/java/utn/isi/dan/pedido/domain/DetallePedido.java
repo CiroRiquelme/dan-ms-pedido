@@ -1,11 +1,33 @@
 package utn.isi.dan.pedido.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "PED_DETALLE_PEDIDO", schema = "MS_PED")
 public class DetallePedido {
 
+	@Id
+	@Column(name = "ID_DETALLE_PEDIDO")
 	private Integer id;
+	
+	@ManyToOne
+	@JoinColumn(name = "ID_PRODUCTO")
 	private Producto producto;
+	
+	@Column(name = "CANTIDAD")
 	private Integer cantidad;
+		
+	@Column(name = "PRECIO" )
 	private Double precio;
+	
+	@ManyToOne
+	@JoinColumn(name = "ID_PEDIDO")
+	private Pedido pedido;
 	
 	public DetallePedido(){
 		

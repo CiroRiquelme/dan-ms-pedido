@@ -1,8 +1,16 @@
 package utn.isi.dan.pedido.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "PED_OBRA", schema = "MS_PED")
 public class Obra {
 
+	@Id
 	private Integer id;
+	
 	private String descripcion;
 
 	public String getDescripcion() {
