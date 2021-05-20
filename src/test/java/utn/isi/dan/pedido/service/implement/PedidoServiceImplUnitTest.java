@@ -1,6 +1,7 @@
 package utn.isi.dan.pedido.service.implement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 
@@ -11,32 +12,32 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
+
+import utn.isi.dan.pedido.PedidosApplicationTests;
+import utn.isi.dan.pedido.dao.PedidoRepositoryDao;
 import utn.isi.dan.pedido.domain.DetallePedido;
 import utn.isi.dan.pedido.domain.Obra;
 import utn.isi.dan.pedido.domain.Pedido;
 import utn.isi.dan.pedido.domain.Producto;
-import utn.isi.dan.pedido.repository.PedidoRepository;
-import utn.isi.dan.pedido.service.ClienteService;
-import utn.isi.dan.pedido.service.MaterialService;
-import utn.isi.dan.pedido.service.PedidoService;
+import utn.isi.dan.pedido.service.IClienteService;
+import utn.isi.dan.pedido.service.IMaterialService;
+import utn.isi.dan.pedido.service.IPedidoService;
 
-@SpringBootTest
+@SpringBootTest(classes = PedidosApplicationTests.class)
 public class PedidoServiceImplUnitTest {
 	
 	@Autowired
-	PedidoService pedidoService;
+	IPedidoService pedidoService;
 	
 	@MockBean
-	PedidoRepository pedidoRepo;
+	PedidoRepositoryDao pedidoRepository;
 	
 	@MockBean
-	ClienteService clienteService;
+	IClienteService clienteService;
 
 	@MockBean
-	MaterialService materialService;
+	IMaterialService materialService;
 	
 	Pedido unPedido;
 	
@@ -45,18 +46,36 @@ public class PedidoServiceImplUnitTest {
 		unPedido = new Pedido();
 		
 		Obra obra = new Obra();
+		obra.setId(1);
 		
-		DetallePedido det1 = new DetallePedido(new Producto(), 5, 40.0);
-		DetallePedido det2 = new DetallePedido(new Producto(), 10, 80.0);
-		DetallePedido det3 = new DetallePedido(new Producto(), 2, 450.0);
+		DetallePedido det1 = new DetallePedido(new Producto(), 3, 100.0);
+		DetallePedido det2 = new DetallePedido(new Producto(), 2, 50.0);
+		DetallePedido det3 = new DetallePedido(new Producto(), 1, 100.0);
 
 		unPedido.setDetalle(new ArrayList<DetallePedido>());
-		unPedido.getDetalle().add(det1);
-		unPedido.getDetalle().add(det2);
-		unPedido.getDetalle().add(det3);
+		unPedido.addDetalle(det1);
+		unPedido.addDetalle(det2);
+		unPedido.addDetalle(det3);
 		
 		unPedido.setObra(obra);
+		
 	}
+	
+    @Test
+    public void testCrearPedidoOK() {
+    	
+    	unPedido.getObra().setId(3);
+
+        when(materialService.stockDisponible(any(Producto.class))).thenReturn(5);
+        when(clienteService.deudaCliente(any(Obra.class))).thenReturn(1000.00);
+        when(clienteService.maximoSaldoNegativo(any(Obra.class))).thenReturn(1000.0);
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(unPedido);
+
+        Pedido resultado = pedidoService.crearPedido(unPedido);
+
+        assertTrue(resultado.getEstado().getId().equals(1));
+        verify(pedidoRepository, times(1)).save(unPedido);
+    }
 	
 	@Test
 	void testCrearPedidoConStockSinDeuda() {
@@ -74,12 +93,12 @@ public class PedidoServiceImplUnitTest {
 		when(clienteService.situacionCrediticiaBCRA(any(Obra.class))).thenReturn(1);
 		
 		//retornar el pedido luego de guardalo
-		when(pedidoRepo.save(any(Pedido.class))).thenReturn(unPedido);
+		when(pedidoRepository.save(any(Pedido.class))).thenReturn(unPedido);
 		
 		
 		Pedido pedidoResultado = pedidoService.crearPedido(unPedido);
 		assertThat(pedidoResultado.getEstado().getId().equals(1));
-		verify(pedidoRepo,times(1)).save(unPedido);
+		verify(pedidoRepository,times(1)).save(unPedido);
 	}
 	
 	@Test
@@ -98,12 +117,12 @@ public class PedidoServiceImplUnitTest {
 		when(clienteService.situacionCrediticiaBCRA(any(Obra.class))).thenReturn(1);
 		
 		//retornar el pedido luego de guardalo
-		when(pedidoRepo.save(any(Pedido.class))).thenReturn(unPedido);
+		when(pedidoRepository.save(any(Pedido.class))).thenReturn(unPedido);
 		
 		Pedido pedidoResultado = pedidoService.crearPedido(unPedido);
 		
 		assertThat(pedidoResultado.getEstado().getId().equals(2));
-		verify(pedidoRepo,times(1)).save(unPedido);
+		verify(pedidoRepository,times(1)).save(unPedido);
 	}
 	
 	

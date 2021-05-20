@@ -3,6 +3,7 @@ package utn.isi.dan.pedido.domain;
 import java.time.Instant;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,15 +17,15 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "PED_PEDIDO", schema = "MS_PED")
+@Table(name = "PEDIDO", schema = "MS_PEDIDOS")
 public class Pedido {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "ID_PEDIDO")
+	@Column(name = "ID_PED")
 	private Integer id;
 	
-	@Column(name = "FECHA_PEDIDO", columnDefinition = "TIME")
+	@Column(name = "FEC_PED")
 	private Instant fechaPedido;
 	
 	@ManyToOne
@@ -32,10 +33,12 @@ public class Pedido {
 	private Obra obra;
 	
 	
-	@OneToMany(mappedBy = "pedido")
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "ID_PED", referencedColumnName = "ID_PED")
 	private List<DetallePedido> detalle;
 	
 	@OneToOne
+	@JoinColumn(name ="ID_EST_PED")
 	private EstadoPedido estado;
 	
 	public Integer getId() {
@@ -62,11 +65,22 @@ public class Pedido {
 	public void setDetalle(List<DetallePedido> detalle) {
 		this.detalle = detalle;
 	}
+	
+    public void addDetalle(DetallePedido detalle) {
+        this.detalle.add(detalle);
+    }
 	public EstadoPedido getEstado() {
 		return estado;
 	}
 	public void setEstado(EstadoPedido estado) {
 		this.estado = estado;
 	}
+	@Override
+	public String toString() {
+		return "Pedido [id=" + id + ", fechaPedido=" + fechaPedido + ", obra=" + obra + ", detalle=" + detalle
+				+ ", estado=" + estado + "]";
+	}
+	
+	
 	
 }

@@ -1,15 +1,9 @@
 package utn.isi.dan.pedido;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
-@SpringBootTest
-@Profile("testing")
-class PedidosApplicationTests {
+@SpringBootApplication
+public class PedidosApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
 
 }

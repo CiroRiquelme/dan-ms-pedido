@@ -1,6 +1,6 @@
 package utn.isi.dan.pedido.service.implement;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -8,28 +8,33 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import utn.isi.dan.pedido.dao.DetallePedidoRepositoryDao;
+import utn.isi.dan.pedido.dao.PedidoRepositoryDao;
 import utn.isi.dan.pedido.domain.DetallePedido;
 import utn.isi.dan.pedido.domain.EstadoPedido;
 import utn.isi.dan.pedido.domain.Obra;
 import utn.isi.dan.pedido.domain.Pedido;
 import utn.isi.dan.pedido.domain.Producto;
 import utn.isi.dan.pedido.repository.PedidoRepository;
-import utn.isi.dan.pedido.service.ClienteService;
-import utn.isi.dan.pedido.service.MaterialService;
-import utn.isi.dan.pedido.service.PedidoService;
+import utn.isi.dan.pedido.service.IClienteService;
+import utn.isi.dan.pedido.service.IMaterialService;
+import utn.isi.dan.pedido.service.IPedidoService;
 
 
 @Service
-public class PedidoServiceImpl implements PedidoService{
+public class PedidoServiceImpl implements IPedidoService{
 	
 	@Autowired
-	MaterialService materialSrv;
+	IMaterialService materialSrv;
 	
 	@Autowired
-	PedidoRepository repo;
+	IClienteService clienteSrv;
 	
 	@Autowired
-	ClienteService clienteSrv;
+	PedidoRepositoryDao pedidoRepository;
+	
+	@Autowired
+    DetallePedidoRepositoryDao detallePedidoRepository;
 
 	@Override
 	public Pedido crearPedido(Pedido p) {
@@ -54,13 +59,13 @@ public class PedidoServiceImpl implements PedidoService{
 			if(!generaDeuda	|| (generaDeuda && this.esDeBajoRiesgo(p.getObra(), nuevoSaldo)	)) {
 				p.setEstado(new EstadoPedido(1,"ACEPTADO"));
 			}else {
-				throw new RuntimeException("El cliente no tiene aprobacion crediticia.");
+				throw new RuntimeException("El cliente NO posee aprobacion crediticia.");
 			}
 		}else {
 			p.setEstado(new EstadoPedido(2,"PENDIENTE"));
 		}		
 		
-		return this.repo.save(p);
+		return this.pedidoRepository.save(p);
 	}
 	
 	
@@ -77,55 +82,91 @@ public class PedidoServiceImpl implements PedidoService{
 
 	@Override
 	public List<Pedido> consultarPedidos() {
-		  List<Pedido> list = new ArrayList<Pedido>();
-		  this.repo.findAll().forEach(p -> list.add(p));
-
-		return list;
+        return pedidoRepository.findAll();
 	}
 
 
 	@Override
 	public Optional<Pedido> buscarPedidoById(Integer id) {
-		
-		
-		return this.repo.findById(id);		
-		
+        return pedidoRepository.findById(id);		
 	}
 	
-	public boolean eliminarPedidobyId(Integer id){
+	@Override
+    public Optional<Pedido> pedidoPorIdObra(Integer idObra) {
+        Obra obra = new Obra();
+        obra.setId(idObra);
 		
-		if(this.repo.existsById(id)) {
-			this.repo.deleteById(id);
-			return true;
-		}else {
-			return false;
-		}
+        return pedidoRepository.findByObra(obra);
+    }
+	
+    
+	@Override
+    public Optional<DetallePedido> buscarDetalle(Integer idPedido, Integer idDetalle) {
+
+        Optional<Pedido> pedido = pedidoRepository.findById(idPedido);
+
+        if (pedido.isPresent()) {
+
+            return pedido.get()
+                .getDetalle()
+                .stream()
+                .filter(dp -> dp.getId().equals(idDetalle))
+                .findFirst();
+
+        } else {          
+			throw new RuntimeException("Pedido inexistente. Id: " + idPedido);
+
+        }
+    }
+
+	
+	public void eliminarPedidobyId(Integer id){
+		
+        if (pedidoRepository.existsById(id)) {
+            pedidoRepository.deleteById(id);
+        } else {
+			throw new RuntimeException("Pedido inexistente. Id: " + id);
+        }
 	}
 	
-	public boolean actualizarPedido(Pedido p) {
+	public void actualizarPedido(Pedido p) {
 		
-		if(this.repo.existsById(p.getId())) {
-			this.repo.deleteById(p.getId());
-			this.repo.save(p);
-			return true;
-		}else {
-			return false;
-		}
+        if (pedidoRepository.existsById(p.getId())) {
+            pedidoRepository.save(p);
+        } else {
+			throw new RuntimeException("Pedido inexistente. Id: " + p.getId());
+        }
 	}
 	
-	public boolean agregarDetallePedido(Integer idPedido , DetallePedido detalle) {
+	public Pedido agregarDetallePedido(Integer idPedido , DetallePedido detalle) {
 		
-		if(this.repo.existsById(idPedido)) {
-			Pedido p = this.repo.findById(idPedido).get();
+		if(this.pedidoRepository.existsById(idPedido)) {
+			Pedido p = this.pedidoRepository.findById(idPedido).get();
 			p.getDetalle().add(detalle);
-			this.repo.save(p);
-			return true;
+            return pedidoRepository.save(p);
 		}else {
-			return false;
-		}
-		
-		
+			throw new RuntimeException("Pedido inexistente. Id: " + idPedido);
+		}		
 	}
+	
+	@Override
+    public void eliminarDetalle(Integer idPedido, Integer idDetalle) {
+        
+        Optional<Pedido> pedido = pedidoRepository.findById(idPedido); 
+
+        if (pedido.isPresent()) {
+
+            if (detallePedidoRepository.existsById(idDetalle)) {
+
+                detallePedidoRepository.deleteById(idDetalle); 
+
+            } else {
+                throw new RuntimeException("Detalle inexistente. Id: " + idPedido);
+            }
+        } else {
+            throw new RuntimeException("Pedido inexistente. Id: " + idPedido);
+        }        
+    }
 
 
 }
