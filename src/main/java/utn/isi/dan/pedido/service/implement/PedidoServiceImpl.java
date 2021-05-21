@@ -15,6 +15,7 @@ import utn.isi.dan.pedido.domain.EstadoPedido;
 import utn.isi.dan.pedido.domain.Obra;
 import utn.isi.dan.pedido.domain.Pedido;
 import utn.isi.dan.pedido.domain.Producto;
+import utn.isi.dan.pedido.exception.NotFoundException;
 import utn.isi.dan.pedido.repository.PedidoRepository;
 import utn.isi.dan.pedido.service.IClienteService;
 import utn.isi.dan.pedido.service.IMaterialService;
@@ -95,8 +96,16 @@ public class PedidoServiceImpl implements IPedidoService{
     public Optional<Pedido> pedidoPorIdObra(Integer idObra) {
         Obra obra = new Obra();
         obra.setId(idObra);
-		
-        return pedidoRepository.findByObra(obra);
+        
+        Optional<Pedido> pedido= pedidoRepository.findByObra(obra);
+        
+        
+        if(pedido.isPresent()) {
+        	return pedido;
+        }else {
+			throw new NotFoundException("Pedido con idobra: " + obra.getId() + "inexistente");
+
+        }
     }
 	
     
@@ -107,15 +116,22 @@ public class PedidoServiceImpl implements IPedidoService{
 
         if (pedido.isPresent()) {
 
-            return pedido.get()
+        	
+        	Optional<DetallePedido> det = pedido.get()
                 .getDetalle()
                 .stream()
                 .filter(dp -> dp.getId().equals(idDetalle))
                 .findFirst();
+        	
+        	if(det.isPresent()) {
+        		return det;
+        	}else {
+    			throw new NotFoundException("Detalle pedido inexistente. IdPedido: " + idPedido + " IdDetalle: " + idDetalle);
+
+        	}
 
         } else {          
-			throw new RuntimeException("Pedido inexistente. Id: " + idPedido);
-
+			throw new NotFoundException("Pedido inexistente. Id: " + idPedido);
         }
     }
 
@@ -125,7 +141,7 @@ public class PedidoServiceImpl implements IPedidoService{
         if (pedidoRepository.existsById(id)) {
             pedidoRepository.deleteById(id);
         } else {
-			throw new RuntimeException("Pedido inexistente. Id: " + id);
+			throw new NotFoundException("Pedido inexistente. Id: " + id);
         }
 	}
 	
@@ -134,7 +150,7 @@ public class PedidoServiceImpl implements IPedidoService{
         if (pedidoRepository.existsById(p.getId())) {
             pedidoRepository.save(p);
         } else {
-			throw new RuntimeException("Pedido inexistente. Id: " + p.getId());
+			throw new NotFoundException("Pedido inexistente. Id: " + p.getId());
         }
 	}
 	
@@ -145,7 +161,7 @@ public class PedidoServiceImpl implements IPedidoService{
 			p.getDetalle().add(detalle);
             return pedidoRepository.save(p);
 		}else {
-			throw new RuntimeException("Pedido inexistente. Id: " + idPedido);
+			throw new NotFoundException("Pedido inexistente. Id: " + idPedido);
 		}		
 	}
 	
@@ -161,10 +177,10 @@ public class PedidoServiceImpl implements IPedidoService{
                 detallePedidoRepository.deleteById(idDetalle); 
 
             } else {
-                throw new RuntimeException("Detalle inexistente. Id: " + idPedido);
+                throw new NotFoundException("Detalle inexistente. Id: " + idPedido);
             }
         } else {
-            throw new RuntimeException("Pedido inexistente. Id: " + idPedido);
+            throw new NotFoundException("Pedido inexistente. Id: " + idPedido);
         }        
     }
 

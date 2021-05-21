@@ -4,8 +4,10 @@ package utn.isi.dan.pedido.rest;
 import java.util.List;
 import java.util.Optional;
 
+import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import utn.isi.dan.pedido.domain.DetallePedido;
 import utn.isi.dan.pedido.domain.Pedido;
+import utn.isi.dan.pedido.exception.NotFoundException;
 import utn.isi.dan.pedido.service.IPedidoService;
 
 @RestController
@@ -33,7 +36,7 @@ public class PedidoRest {
 	IPedidoService pedidoService;
 	
 	@PostMapping
-	@ApiOperation(value = "Crea un pedido")
+	@ApiOperation(value = "Crea un nuevo pedido")
 	public ResponseEntity<Pedido> crear(@RequestBody Pedido nuevoPedido){
 		
 		if(nuevoPedido.getObra()==null) {
@@ -110,41 +113,44 @@ public class PedidoRest {
     
     @GetMapping
     @ApiOperation(value = "Devuelve todos los pedidos.")
-    public ResponseEntity<List<Pedido>> todos(
-    		@RequestParam(required = false) Integer idObra
-    		
-    		){   	
+    public ResponseEntity<List<Pedido>> todos(){   	
         List<Pedido> body = pedidoService.consultarPedidos();
         return ResponseEntity.ok(body);  	
     }
     
-    @GetMapping(params = "idObra")
+    @GetMapping(path = "/obra/{idObra}")
     @ApiOperation(value = "Busca un pedido por id de obra")
-    public ResponseEntity<Pedido> pedidoPorIdObra(@RequestParam(name = "idObra") Integer idObra) {
+    public ResponseEntity<?> pedidoPorIdObra(@PathVariable Integer idObra) {
 
-        Optional<Pedido> body = pedidoService.pedidoPorIdObra(idObra);
-
-        if (body.isPresent()) {
+        Optional<Pedido> body;
+        try {
+            body= pedidoService.pedidoPorIdObra(idObra);			
+		} catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
             return ResponseEntity.ok(body.get());
-        } else {
-            throw new RuntimeException("Pedido no encontrado. Id Obra: " + idObra);
-        }
+
     }
     
     @GetMapping(path = "/{idPedido}/detalle/{idDetalle}")
     @ApiOperation(value = "Busca detalle de un pedido por id.")
-    public ResponseEntity<DetallePedido> pedidoPorId(
+    public ResponseEntity<?> pedidoPorId(
     		@PathVariable Integer idPedido,
     		@PathVariable Integer idDetalle
     		){
-        Optional<DetallePedido> body = pedidoService.buscarDetalle(idPedido, idDetalle);
+    	
+    	 Optional<DetallePedido> body;
+    	try {
+            body = pedidoService.buscarDetalle(idPedido, idDetalle);       
+            
+		} catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
+    	
+        return ResponseEntity.ok(body.get());
 
-        if (body.isPresent()) {
-            return ResponseEntity.ok(body.get());
-        } else {
-            throw new RuntimeException("Detalle no encontrado. Id Pedido: " +
-                                         idPedido + ", Id Detalle: " + idDetalle);
-        }
+
+
     }
     
     
