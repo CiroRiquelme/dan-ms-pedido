@@ -4,8 +4,6 @@ package utn.isi.dan.pedido.rest;
 import java.util.List;
 import java.util.Optional;
 
-import javax.websocket.server.PathParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
@@ -37,19 +34,19 @@ public class PedidoRest {
 	
 	@PostMapping
 	@ApiOperation(value = "Crea un nuevo pedido")
-	public ResponseEntity<Pedido> crear(@RequestBody Pedido nuevoPedido){
+	public ResponseEntity<?> crear(@RequestBody Pedido nuevoPedido){
 		
 		if(nuevoPedido.getObra()==null) {
 			return ResponseEntity.badRequest().body(nuevoPedido);
 		}
 		if(nuevoPedido.getDetalle()==null || nuevoPedido.getDetalle().isEmpty()) {
-			return ResponseEntity.badRequest().body(nuevoPedido);
+			return ResponseEntity.badRequest().body("Debe tener al menos un detalle");
 		}else {
 			boolean detallesValidos = nuevoPedido.getDetalle()
 					.stream()
 					.allMatch(dp -> validarDetallePedido(dp));
 			if(!detallesValidos) {
-				return ResponseEntity.badRequest().body(nuevoPedido);
+				return ResponseEntity.badRequest().body("Detalle Invalido");
 			}
 		}		
 		
@@ -106,9 +103,15 @@ public class PedidoRest {
     
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "Busca un Pedido por id.")
-    public ResponseEntity<Pedido> pedidoPorId(@PathVariable Integer id){
+    public ResponseEntity<?> pedidoPorId(@PathVariable Integer id){
     	
-        return ResponseEntity.of(this.pedidoService.buscarPedidoById(id));
+        Optional<Pedido> pedido= pedidoService.buscarPedidoById(id);		      
+        
+        if(pedido.isPresent()) {
+        	 return ResponseEntity.ok(pedido.get());
+        }else {
+        	return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
     
     @GetMapping
@@ -125,7 +128,7 @@ public class PedidoRest {
         Optional<Pedido> body;
         try {
             body= pedidoService.pedidoPorIdObra(idObra);			
-		} catch (Exception e) {
+		} catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
             return ResponseEntity.ok(body.get());

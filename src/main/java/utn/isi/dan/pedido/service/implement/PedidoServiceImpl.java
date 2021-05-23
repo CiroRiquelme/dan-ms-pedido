@@ -4,7 +4,6 @@ package utn.isi.dan.pedido.service.implement;
 import java.util.List;
 import java.util.Optional;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,6 @@ import utn.isi.dan.pedido.domain.Obra;
 import utn.isi.dan.pedido.domain.Pedido;
 import utn.isi.dan.pedido.domain.Producto;
 import utn.isi.dan.pedido.exception.NotFoundException;
-import utn.isi.dan.pedido.repository.PedidoRepository;
 import utn.isi.dan.pedido.service.IClienteService;
 import utn.isi.dan.pedido.service.IMaterialService;
 import utn.isi.dan.pedido.service.IPedidoService;
@@ -36,6 +34,8 @@ public class PedidoServiceImpl implements IPedidoService{
 	
 	@Autowired
     DetallePedidoRepositoryDao detallePedidoRepository;
+	
+
 
 	@Override
 	public Pedido crearPedido(Pedido p) {
@@ -89,7 +89,8 @@ public class PedidoServiceImpl implements IPedidoService{
 
 	@Override
 	public Optional<Pedido> buscarPedidoById(Integer id) {
-        return pedidoRepository.findById(id);		
+		
+        return pedidoRepository.findById(id);
 	}
 	
 	@Override
