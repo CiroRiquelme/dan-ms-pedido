@@ -60,25 +60,15 @@ class PedidoRepositoryDaoTest {
         
         assertTrue(pedido.isPresent());
         assertThat(pedido.get().getId(), is(equalTo(1)));
-        assertNotNull(pedido.get().getEstado());
-        assertNotNull(pedido.get().getDetalle());
-        //assertThat(pedido.get().getDetalles().size(), is(equalTo(2)));
-        assertNotNull(pedido.get().getObra());
-        //assertThat(pedido.get().getDetalles(), everyItem(hasProperty("producto")));
+
     }
     
     @Test
-    @Disabled
     public void findByObraId_pedido() {
-
-        Obra obra = new Obra();
-        obra.setId(1);
         
-        Optional<Pedido> pedido = pedidoRepository.findByObra(obra); 
-
-        assertTrue(pedido.isPresent());
+        List<Pedido> pedido = pedidoRepository.findByObraId(1); 
         
-        assertThat(pedido.get().getId(), is(equalTo(2))); 
+        assertThat(pedido.size(), is(equalTo(1))); 
     } 
 
     

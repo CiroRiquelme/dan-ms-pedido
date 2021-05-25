@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import utn.isi.dan.pedido.dao.DetallePedidoRepositoryDao;
+import utn.isi.dan.pedido.dao.ObraRepositoryDao;
 import utn.isi.dan.pedido.dao.PedidoRepositoryDao;
+import utn.isi.dan.pedido.dao.ProductoRepositoryDao;
 import utn.isi.dan.pedido.domain.DetallePedido;
 import utn.isi.dan.pedido.domain.EstadoPedido;
 import utn.isi.dan.pedido.domain.Obra;
@@ -35,11 +37,80 @@ public class PedidoServiceImpl implements IPedidoService{
 	@Autowired
     DetallePedidoRepositoryDao detallePedidoRepository;
 	
+	@Autowired
+	ObraRepositoryDao obraRepository;
+	
+	@Autowired
+	ProductoRepositoryDao productoRepository;
+	
+	public Pedido aceptarPedido(Pedido p) {
+		
+		if(obraRepository.findById(p.getObra().getId()).isPresent()){
+						
+		
+			if (p.getDetalle().stream().allMatch( dp -> this.productoRepository.existsById(dp.getProducto().getId()))) {
+				p.setEstado(new EstadoPedido(1,"NUEVO"));
+				return this.pedidoRepository.save(p);
+			}else {
+				throw new NotFoundException("Id De producto Inexistente.");
+			}		
 
+		}else {
+			throw new NotFoundException("La obra con id " + p.getObra().getId() + " no esta dada de alta.");
+		}		
+	}
+	
+	public Optional<Pedido> actualizarEstadoPedido(Integer IdPedido , EstadoPedido nuevoEstado){
+		
+
+		
+		
+		Optional<Pedido> pedido = this.pedidoRepository.findById(IdPedido);
+		
+		if (pedido.isPresent()) {		
+			
+			if(nuevoEstado.getEstado().equals("CONFIRMADO")) {
+				confirmarPedido(pedido.get());				
+			}			
+			this.pedidoRepository.save(pedido.get());
+			
+			return pedido;
+			
+		} else {
+			return pedido;
+		}
+		
+		
+		
+	}
+	public void confirmarPedido(Pedido p) {
+		
+		boolean stockDisponible = p.getDetalle()
+				.stream()
+				.allMatch(dp -> verificarStock(dp.getProducto(), dp.getCantidad()));
+		
+		Double CostoTotalOrden = p.getDetalle()
+				.stream()
+				.mapToDouble(dp -> dp.getCantidad() * dp.getPrecio())
+				.sum();
+		
+		Double saldoCliente = clienteSrv.saldoCliente(p.getObra());
+		Double nuevoSaldo = saldoCliente - CostoTotalOrden;
+		boolean generaDeuda = nuevoSaldo < 0;
+		
+		if(stockDisponible) {
+			if(!generaDeuda || (generaDeuda && this.esDeBajoRiesgo(p.getObra(), nuevoSaldo))) {
+				p.setEstado(new EstadoPedido(5,"ACEPTADO"));
+			}else {
+				p.setEstado(new EstadoPedido(6,"RECHAZADO"));
+			}
+		}else {
+			p.setEstado(new EstadoPedido(3,"PENDIENTE"));
+		}		
+	}
 
 	@Override
 	public Pedido crearPedido(Pedido p) {
-
 
 		boolean hayStock = p.getDetalle()
 				.stream()
@@ -50,7 +121,7 @@ public class PedidoServiceImpl implements IPedidoService{
 				.mapToDouble(dp -> dp.getCantidad() * dp.getPrecio())
 				.sum();
 		
-		Double saldoCliente = clienteSrv.deudaCliente(p.getObra());
+		Double saldoCliente = clienteSrv.saldoCliente(p.getObra());
 		Double nuevoSaldo = saldoCliente - totalOrden;
 		
 		
@@ -93,30 +164,24 @@ public class PedidoServiceImpl implements IPedidoService{
         return pedidoRepository.findById(id);
 	}
 	
-	@Override
-    public Optional<Pedido> pedidoPorIdObra(Integer idObra) {
-        Obra obra = new Obra();
-        obra.setId(idObra);
-        
-        Optional<Pedido> pedido= pedidoRepository.findByObra(obra);
-        
-        
-        if(pedido.isPresent()) {
-        	return pedido;
-        }else {
-			throw new NotFoundException("Pedido con idobra: " + obra.getId() + "inexistente");
-
-        }
+	public List<Pedido> buscarPedidoByObraId(Integer idObra) {       
+         
+        return pedidoRepository.findByObraId(idObra);
     }
 	
+	public List<Pedido> buscarPedidoByEstadoPedido(Integer idEstadoPedido){
+		
+		return pedidoRepository.findByEstadoId(idEstadoPedido);
+	}
+
+	
     
-	@Override
+	
     public Optional<DetallePedido> buscarDetalle(Integer idPedido, Integer idDetalle) {
 
         Optional<Pedido> pedido = pedidoRepository.findById(idPedido);
 
         if (pedido.isPresent()) {
-
         	
         	Optional<DetallePedido> det = pedido.get()
                 .getDetalle()
@@ -166,24 +231,64 @@ public class PedidoServiceImpl implements IPedidoService{
 		}		
 	}
 	
-	@Override
+
     public void eliminarDetalle(Integer idPedido, Integer idDetalle) {
-        
-        Optional<Pedido> pedido = pedidoRepository.findById(idPedido); 
+		
+        Optional<Pedido> pedido = pedidoRepository.findById(idPedido);
 
         if (pedido.isPresent()) {
+        	
+        	Optional<DetallePedido> det = pedido.get()
+                .getDetalle()
+                .stream()
+                .filter(dp -> dp.getId().equals(idDetalle))
+                .findFirst();
+        	
+        	if(det.isPresent()) {       		
 
-            if (detallePedidoRepository.existsById(idDetalle)) {
+        		detallePedidoRepository.delete(det.get());    		
 
-                detallePedidoRepository.deleteById(idDetalle); 
+        	}else {
+    			throw new NotFoundException("Detalle pedido inexistente. IdPedido: " + idPedido + " IdDetalle: " + idDetalle);
 
-            } else {
-                throw new NotFoundException("Detalle inexistente. Id: " + idPedido);
-            }
-        } else {
-            throw new NotFoundException("Pedido inexistente. Id: " + idPedido);
-        }        
+        	}
+
+        } else {          
+			throw new NotFoundException("Pedido inexistente. Id: " + idPedido);
+        }  
     }
+
+    public DetallePedido actualizarDetalle(Integer idPedido, DetallePedido detalle) {
+
+            Optional<Pedido> pedido = pedidoRepository.findById(idPedido);
+
+            if (pedido.isPresent()) {
+            	
+            	Optional<DetallePedido> det = pedido.get()
+                    .getDetalle()
+                    .stream()
+                    .filter(dp -> dp.getId().equals(detalle.getId()))
+                    .findFirst();
+            	
+            	if(det.isPresent()) {
+            		
+            		DetallePedido detalleActual =  detallePedidoRepository.findById(detalle.getId()).get();
+            		detalleActual = detalle;
+            		detallePedidoRepository.save(detalleActual);    		
+            		
+            		return detalleActual;
+            	}else {
+        			throw new NotFoundException("Detalle pedido inexistente. IdPedido: " + idPedido + " IdDetalle: " + detalle.getId());
+
+            	}
+
+            } else {          
+    			throw new NotFoundException("Pedido inexistente. Id: " + idPedido);
+            }
+        
+    }	
+
+	
 
 
 }

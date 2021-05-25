@@ -67,7 +67,7 @@ public class PedidoServiceImplUnitTest {
     	unPedido.getObra().setId(3);
 
         when(materialService.stockDisponible(any(Producto.class))).thenReturn(5);
-        when(clienteService.deudaCliente(any(Obra.class))).thenReturn(1000.00);
+        when(clienteService.saldoCliente(any(Obra.class))).thenReturn(1000.00);
         when(clienteService.maximoSaldoNegativo(any(Obra.class))).thenReturn(1000.0);
         when(pedidoRepository.save(any(Pedido.class))).thenReturn(unPedido);
 
@@ -84,7 +84,7 @@ public class PedidoServiceImplUnitTest {
 		when(materialService.stockDisponible(any(Producto.class))).thenReturn(20);
 		
 		//Cliente sin deuda
-		when(clienteService.deudaCliente(any(Obra.class))).thenReturn(0.0);
+		when(clienteService.saldoCliente(any(Obra.class))).thenReturn(0.0);
 		
 		//Cliente con saldo negativo maximo de 10000
 		when(clienteService.maximoSaldoNegativo(any(Obra.class))).thenReturn(10000.0);
@@ -108,7 +108,7 @@ public class PedidoServiceImplUnitTest {
 		when(materialService.stockDisponible(any(Producto.class))).thenReturn(3);
 		
 		//Cliente sin deuda
-		when(clienteService.deudaCliente(any(Obra.class))).thenReturn(0.0);
+		when(clienteService.saldoCliente(any(Obra.class))).thenReturn(0.0);
 		
 		//Cliente con saldo negativo maximo de 10000
 		when(clienteService.maximoSaldoNegativo(any(Obra.class))).thenReturn(10000.0);
