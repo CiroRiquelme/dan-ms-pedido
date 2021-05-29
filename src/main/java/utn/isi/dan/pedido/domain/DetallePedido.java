@@ -14,7 +14,7 @@ import javax.persistence.Table;
 public class DetallePedido {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID_DET_PED")
 	private Integer id;
 	

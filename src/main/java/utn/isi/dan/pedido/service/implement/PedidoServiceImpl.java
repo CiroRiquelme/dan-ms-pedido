@@ -1,10 +1,15 @@
 package utn.isi.dan.pedido.service.implement;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import utn.isi.dan.pedido.dao.DetallePedidoRepositoryDao;
 import utn.isi.dan.pedido.dao.ObraRepositoryDao;
@@ -15,6 +20,7 @@ import utn.isi.dan.pedido.domain.EstadoPedido;
 import utn.isi.dan.pedido.domain.Obra;
 import utn.isi.dan.pedido.domain.Pedido;
 import utn.isi.dan.pedido.domain.Producto;
+import utn.isi.dan.pedido.exception.BadRequestException;
 import utn.isi.dan.pedido.exception.NotFoundException;
 import utn.isi.dan.pedido.service.IClienteService;
 import utn.isi.dan.pedido.service.IMaterialService;
@@ -40,6 +46,12 @@ public class PedidoServiceImpl implements IPedidoService {
 
 	@Autowired
 	ProductoRepositoryDao productoRepository;
+	
+    @Autowired 
+    private JmsTemplate jmsTemplate; 
+    
+    @Autowired
+    ObjectMapper mapper;
 
 	public Pedido aceptarPedido(Pedido p) {
 
@@ -70,7 +82,57 @@ public class PedidoServiceImpl implements IPedidoService {
 		if (nuevoEstado.getEstado().equals("CONFIRMADO")) {
 			confirmarPedido(pedido.get());
 		}
-		this.pedidoRepository.save(pedido.get());
+		
+		Pedido pedidoGuardado = this.pedidoRepository.save(pedido.get());
+		
+		if(pedidoGuardado.getEstado().getId()==5) {
+			
+			List<DetallePedido> detallesPedidos = pedidoGuardado.getDetalle();
+			
+			
+			List<DetallePedidoDto> detallesPedidosDto = new ArrayList<DetallePedidoDto>();
+			
+			detallesPedidos.forEach(detalle ->{ 
+				DetallePedidoDto detalleDto = new DetallePedidoDto(detalle);
+				detallesPedidosDto.add(detalleDto);
+			}
+			);
+			
+			String jsonDetalle = "";
+			try {
+				jsonDetalle = mapper.writeValueAsString(detallesPedidosDto);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
+			jmsTemplate.convertAndSend("COLA_PEDIDOS", jsonDetalle) ;			
+			}
+			
+			
+			
+			
+			
+			
+/*			detallesPedidos.stream().forEach(detalle ->  
+			{
+				
+			DetallePedidoDto detalleDto = new DetallePedidoDto(detalle);	
+				
+			String jsonDetalle = "";
+			try {
+				jsonDetalle = mapper.writeValueAsString(detalleDto);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
+			jmsTemplate.convertAndSend("COLA_PEDIDOS", jsonDetalle) ;			
+			}
+			);			
+		}*/
+		
+		if(pedidoGuardado.getEstado().getId()==6) {
+            throw new BadRequestException("El cliente no posee aprobacion crediticia");
+		}
 
 		return pedido;
 
@@ -83,10 +145,13 @@ public class PedidoServiceImpl implements IPedidoService {
 
 		Double CostoTotalOrden = p.getDetalle().stream().mapToDouble(dp -> dp.getCantidad() * dp.getPrecio()).sum();
 
+		
+		// el saldo siempre de 1000 y el negativo es de 500
 		Double saldoCliente = clienteSrv.saldoCliente(p.getObra());
 		Double nuevoSaldo = saldoCliente - CostoTotalOrden;
 		boolean generaDeuda = nuevoSaldo < 0;
 
+		//stock disponible siempre es 100 por ahora.
 		if (stockDisponible) {
 			if (!generaDeuda || (generaDeuda && this.esDeBajoRiesgo(p.getObra(), nuevoSaldo))) {
 				p.setEstado(new EstadoPedido(5, "ACEPTADO"));
@@ -139,9 +204,10 @@ public class PedidoServiceImpl implements IPedidoService {
 	}
 
 	@Override
-	public Optional<Pedido> buscarPedidoById(Integer id) {
+	public Optional<Pedido> buscarPedidoById(Integer id) {		
 
 		return pedidoRepository.findById(id);
+		
 	}
 
 	public List<Pedido> buscarPedidoByObraId(Integer idObra) {

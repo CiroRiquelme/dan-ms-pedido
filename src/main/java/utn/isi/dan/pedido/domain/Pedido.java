@@ -21,7 +21,7 @@ import javax.persistence.Table;
 public class Pedido {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID_PED")
 	private Integer id;
 	
