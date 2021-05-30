@@ -10,24 +10,14 @@ import utn.isi.dan.pedido.service.IClienteService;
 public class ClienteServiceImpl implements IClienteService{
 
 	@Override
-	public Double deudaCliente(Obra obra) {
-		// TODO Por ahora siempre devuelve 1000, excepto la obra 3
-		
-		if(obra.getId().equals(3)) {
-			return 0.00;
-		}
+	public Double saldoCliente(Obra obra) {
 		return  1000.00;
 	}
 
 	@Override
 	public Double maximoSaldoNegativo(Obra obra) {
-		// TODO Auto-generated method stub
-		
-		if(obra.getId().equals(3)) {
-			return 10000.00;
-		}
-		
-		return 0.00;
+		// TODO Auto-generated method stub		
+		return 500.00;
 	}
 
 	@Override
