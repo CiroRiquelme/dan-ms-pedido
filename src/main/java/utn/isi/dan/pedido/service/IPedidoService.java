@@ -5,16 +5,21 @@ import java.util.Optional;
 
 
 import utn.isi.dan.pedido.domain.DetallePedido;
+import utn.isi.dan.pedido.domain.EstadoPedido;
 import utn.isi.dan.pedido.domain.Pedido;
 
 public interface IPedidoService {
 	
 	public Pedido crearPedido(Pedido p);
 	
+	public Pedido aceptarPedido(Pedido p);
+	
+	public Optional<Pedido> actualizarEstadoPedido(Integer IdPedido , EstadoPedido nuevoEstado); 
+	
 	
 	public List<Pedido> consultarPedidos();
 	
-	Optional<Pedido> buscarPedidoById(Integer id);
+	public Optional<Pedido> buscarPedidoById(Integer id);
 	
 	public void eliminarPedidobyId(Integer id);
 	
@@ -23,13 +28,16 @@ public interface IPedidoService {
 	public Pedido agregarDetallePedido(Integer idPedido , DetallePedido detalle);
 
 
-	Optional<Pedido> pedidoPorIdObra(Integer idObra);
+	public List<Pedido> buscarPedidoByObraId(Integer idObra);
+	public List<Pedido> buscarPedidoByEstadoPedido(Integer idEstadoPedido);
 
 
-	Optional<DetallePedido> buscarDetalle(Integer idPedido, Integer idDetalle);
+
+	public Optional<DetallePedido> buscarDetalle(Integer idPedido, Integer idDetalle);
 
 
 	void eliminarDetalle(Integer idPedido, Integer idDetalle);
+    public DetallePedido actualizarDetalle(Integer idPedido, DetallePedido detalle);
 
 
 
