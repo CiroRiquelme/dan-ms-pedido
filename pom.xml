@@ -44,11 +44,7 @@
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jdbc</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>frsf.isi.dan</groupId>
-			<artifactId>memory-repo</artifactId>
-			<version>0.0.1</version>
-		</dependency>
+
 
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -152,6 +148,27 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- DOCKERFILE -->
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>1.4.13</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<repository>dan/ms-pedidos</repository>
+					<tag>${project.version}</tag>
+					<buildArgs>
+						<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+					</buildArgs>
+				</configuration>
+			</plugin>			
 		</plugins>
 	</build>
 	<reporting>

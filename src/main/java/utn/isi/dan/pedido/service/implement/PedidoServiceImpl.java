@@ -106,29 +106,11 @@ public class PedidoServiceImpl implements IPedidoService {
 				e.printStackTrace();
 			}	
 			jmsTemplate.convertAndSend("COLA_PEDIDOS", jsonDetalle) ;			
-			}
-			
-			
-			
-			
-			
-			
-/*			detallesPedidos.stream().forEach(detalle ->  
-			{
-				
-			DetallePedidoDto detalleDto = new DetallePedidoDto(detalle);	
-				
-			String jsonDetalle = "";
-			try {
-				jsonDetalle = mapper.writeValueAsString(detalleDto);
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}	
-			jmsTemplate.convertAndSend("COLA_PEDIDOS", jsonDetalle) ;			
-			}
-			);			
-		}*/
+			
+			
+			
+
 		
 		if(pedidoGuardado.getEstado().getId()==6) {
             throw new BadRequestException("El cliente no posee aprobacion crediticia");
