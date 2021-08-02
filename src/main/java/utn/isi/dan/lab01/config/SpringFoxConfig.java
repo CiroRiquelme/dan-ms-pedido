@@ -1,4 +1,4 @@
-package utn.isi.dan.pedido.config;
+package utn.isi.dan.lab01.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,7 @@ public class SpringFoxConfig {
     public Docket api() { 
         return new Docket(DocumentationType.SWAGGER_2)  
           .select()                                  
-          .apis(RequestHandlerSelectors.basePackage("utn.isi.dan.pedido.rest"))              
+          .apis(RequestHandlerSelectors.basePackage("utn.isi.dan.lab01.rest"))              
           .paths(PathSelectors.any())                          
           .build();                                           
     }
