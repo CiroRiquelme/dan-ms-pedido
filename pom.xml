@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>utn.isi.dan.pedidos</groupId>
 	<artifactId>dan-ms-pedidos</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>latest</version>
 	<name>dan-ms-pedidos</name>
 	<description>Microservicio de gestion de Pedidos</description>
 	<properties>
@@ -106,6 +106,12 @@
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
 
+		<!-- JWT handling -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
+
 
 	</dependencies>
 
@@ -190,7 +196,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<repository>dan/ms-pedidos</repository>
+					<repository>criquelme05/dan-ms-pedidos</repository>
 					<tag>${project.version}</tag>
 					<buildArgs>
 						<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
