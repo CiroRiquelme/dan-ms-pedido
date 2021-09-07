@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2Res
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -27,7 +28,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		// Validate tokens through configured OpenID Provider
 		http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter());
 		// Require authentication for all requests
-		http.authorizeRequests().anyRequest().authenticated();
+		http.authorizeRequests()
+		
+		.antMatchers(HttpMethod.GET, "/actuator/**").anonymous()
+		
+		
+		.anyRequest().authenticated();
 		// Allow showing pages within a frame
 		http.headers().frameOptions().sameOrigin();
 	}
